@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Blockchain browser</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            height: 100vh;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0px;
+        }
+
+        body>header {
+            top: 0;
+            width: 100%;
+            height: 30px;
+            border-bottom: 1px solid lightgray;
+            font-size: 20px;
+            display: flex;
+            padding: 3px;
+        }
+
+        body>header>#user {
+            position: relative;
+        }
+
+        body>header>#user>form {
+            position: absolute;
+            width: 200px;
+            height: 60px;
+            border: 1px solid lightgray;
+            background-color: white;
+            border-radius: 3px;
+            left: -100%;
+            top: 128%;
+        }
+
+        main {
+            overflow: none;
+            height: calc(100vh - 37px);
+            /*padding: 0px 10px;*/
+        }
+
+        main>article {
+            padding-bottom: 15px;
+        }
+
+        body>header>button {
+            font-size: 18px;
+            vertical-align: middle;
+            padding: 0px 4px 0px 4px;
+            border-width: 0px;
+            background-color: white;
+            border-radius: 10px;
+        }
+
+        body>header>button:hover {
+            background-color: #F1F3F4;
+            cursor: pointer;
+        }
+
+        body>header>form {
+            display: flex;
+            height: 100%;
+            flex-grow: 1;
+        }
+
+        body>header>form>input {
+            width: 100%;
+            font-size: 16px;
+            border-radius: 10px;
+            border-width: 0px;
+            background-color: #F1F3F4;
+            color: #202124;
+            padding: 0px 10px 0px 10px;
+            margin: 2px 6px 2px 6px;
+        }
+
+        body>header>form>input:focus {
+            background-color: white;
+        }
+
+        #main-newwebsite {
+            margin: 60px;
+        }
+
+        #newwebsite>textarea {
+            width: 100%;
+            height: 150px;
+            padding: 3px;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            background-color: #f8f8f8;
+            font-size: 16px;
+            resize: none;
+        }
+
+        #newwebsite>button {
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 100%;
+            height: 30px;
+        }
+
+        #newwebsite>input {
+            border-radius: 4px;
+            border: 2px solid #ccc;
+            width: 100%;
+            background-color: #F9F9F9;
+            box-sizing: border-box;
+            font-size: 16px;
+            padding: 3px;
+        }
+
+        #newwebsite>label {
+            display: block;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border-width: 0px;
+        }
+
+        .login-toggle {
+            position: relative;
+            /*display: inline-block;*/
+            display: none;
+            cursor: pointer;
+        }
+
+        .user-icon {
+            font-size: 24px;
+        }
+
+        /* CSS for the login popup */
+        .login-popup {
+            display: none;
+            position: absolute;
+            top: 40px;
+            right: 0;
+            width: 200px;
+            background-color: #f1f1f1;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            cursor: auto;
+        }
+
+        .login-popup a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .login-popup a:hover {
+            background-color: #ddd;
+        }
+
+        #nav-bar>#connect-metamask {
+            font-size: medium;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-left: 4px;
+            padding-right: 4px;
+            margin-right: 10px;
+        }
+
+        #nav-bar>#home-button {
+            font-size: 20px;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+
+        #nav-bar>#select-network {
+            border: none;
+        }
+
+        #nav-bar>#select-network:focus {
+            border: none;
+            outline: none;
+        }
+    </style>
+    <script src="web3.min.js"></script>
+</head>
+
+<body>
+    <header id="nav-bar">
+        <button hidden onclick="history.back()">&#x2190;</button>
+        <button hidden onclick="history.forward()">&#x2192;</button>
+        <button id="home-button" onclick="window.location.href = './'">&#x1F3E0;</button>
+        <form id="navigate">
+            <input autocomplete="on" autocorrect="off" autocapitalize="none" type="text" id="url"
+                onclick="this.setSelectionRange(0, this.value.length)" />
+        </form>
+        <button id="connect-metamask" onclick="connectMetamask()">
+            <svg fill="none" height="20" viewBox="0 0 35 33" width="22" xmlns="http://www.w3.org/2000/svg">
+                <g stroke-linecap="round" stroke-linejoin="round" stroke-width=".25">
+                    <path d="m32.9582 1-13.1341 9.7183 2.4424-5.72731z" fill="#e17726" stroke="#e17726" />
+                    <g fill="#e27625" stroke="#e27625">
+                        <path d="m2.66296 1 13.01714 9.809-2.3254-5.81802z" />
+                        <path d="m28.2295 23.5335-3.4947 5.3386 7.4829 2.0603 2.1436-7.2823z" />
+                        <path d="m1.27281 23.6501 2.13055 7.2823 7.46994-2.0603-3.48166-5.3386z" />
+                        <path d="m10.4706 14.5149-2.0786 3.1358 7.405.3369-.2469-7.969z" />
+                        <path d="m25.1505 14.5149-5.1575-4.58704-.1688 8.05974 7.4049-.3369z" />
+                        <path d="m10.8733 28.8721 4.4819-2.1639-3.8583-3.0062z" />
+                        <path d="m20.2659 26.7082 4.4689 2.1639-.6105-5.1701z" />
+                    </g>
+                    <path d="m24.7348 28.8721-4.469-2.1639.3638 2.9025-.039 1.231z" fill="#d5bfb2" stroke="#d5bfb2" />
+                    <path d="m10.8732 28.8721 4.1572 1.9696-.026-1.231.3508-2.9025z" fill="#d5bfb2" stroke="#d5bfb2" />
+                    <path d="m15.1084 21.7842-3.7155-1.0884 2.6243-1.2051z" fill="#233447" stroke="#233447" />
+                    <path d="m20.5126 21.7842 1.0913-2.2935 2.6372 1.2051z" fill="#233447" stroke="#233447" />
+                    <path d="m10.8733 28.8721.6495-5.3386-4.13117.1167z" fill="#cc6228" stroke="#cc6228" />
+                    <path d="m24.0982 23.5335.6366 5.3386 3.4946-5.2219z" fill="#cc6228" stroke="#cc6228" />
+                    <path d="m27.2291 17.6507-7.405.3369.6885 3.7966 1.0913-2.2935 2.6372 1.2051z" fill="#cc6228"
+                        stroke="#cc6228" />
+                    <path d="m11.3929 20.6958 2.6242-1.2051 1.0913 2.2935.6885-3.7966-7.40495-.3369z" fill="#cc6228"
+                        stroke="#cc6228" />
+                    <path d="m8.392 17.6507 3.1049 6.0513-.1039-3.0062z" fill="#e27525" stroke="#e27525" />
+                    <path d="m24.2412 20.6958-.1169 3.0062 3.1049-6.0513z" fill="#e27525" stroke="#e27525" />
+                    <path d="m15.797 17.9876-.6886 3.7967.8704 4.4833.1949-5.9087z" fill="#e27525" stroke="#e27525" />
+                    <path d="m19.8242 17.9876-.3638 2.3584.1819 5.9216.8704-4.4833z" fill="#e27525" stroke="#e27525" />
+                    <path d="m20.5127 21.7842-.8704 4.4834.6236.4406 3.8584-3.0062.1169-3.0062z" fill="#f5841f"
+                        stroke="#f5841f" />
+                    <path d="m11.3929 20.6958.104 3.0062 3.8583 3.0062.6236-.4406-.8704-4.4834z" fill="#f5841f"
+                        stroke="#f5841f" />
+                    <path
+                        d="m20.5906 30.8417.039-1.231-.3378-.2851h-4.9626l-.3248.2851.026 1.231-4.1572-1.9696 1.4551 1.1921 2.9489 2.0344h5.0536l2.962-2.0344 1.442-1.1921z"
+                        fill="#c0ac9d" stroke="#c0ac9d" />
+                    <path
+                        d="m20.2659 26.7082-.6236-.4406h-3.6635l-.6236.4406-.3508 2.9025.3248-.2851h4.9626l.3378.2851z"
+                        fill="#161616" stroke="#161616" />
+                    <path
+                        d="m33.5168 11.3532 1.1043-5.36447-1.6629-4.98873-12.6923 9.3944 4.8846 4.1205 6.8983 2.0085 1.52-1.7752-.6626-.4795 1.0523-.9588-.8054-.622 1.0523-.8034z"
+                        fill="#763e1a" stroke="#763e1a" />
+                    <path
+                        d="m1 5.98873 1.11724 5.36447-.71451.5313 1.06527.8034-.80545.622 1.05228.9588-.66255.4795 1.51997 1.7752 6.89835-2.0085 4.8846-4.1205-12.69233-9.3944z"
+                        fill="#763e1a" stroke="#763e1a" />
+                    <path d="m32.0489 16.5234-6.8983-2.0085 2.0786 3.1358-3.1049 6.0513 4.1052-.0519h6.1318z"
+                        fill="#f5841f" stroke="#f5841f" />
+                    <path d="m10.4705 14.5149-6.89828 2.0085-2.29944 7.1267h6.11883l4.10519.0519-3.10487-6.0513z"
+                        fill="#f5841f" stroke="#f5841f" />
+                    <path
+                        d="m19.8241 17.9876.4417-7.5932 2.0007-5.4034h-8.9119l2.0006 5.4034.4417 7.5932.1689 2.3842.013 5.8958h3.6635l.013-5.8958z"
+                        fill="#f5841f" stroke="#f5841f" />
+                </g>
+            </svg>
+            Connect
+        </button>
+        <div class="login-toggle" id="loginToggle">
+            <span id="user-icon" class="user-icon">&#x1F464;</span> <!-- User icon -->
+            <form class="login-popup" id="loginPopup">
+                <input id="privateKeyInput" />
+                <button>Login</button>
+            </form>
+        </div>
+    </header>
+    <main id="page">
+        <iframe id="content" src="about:blank"></iframe>
+    </main>
+
+    <script>
+        let account;
+        let CHAIN_ID = '';
+        let KEY_PUBLIC = '';
+        let web3;
+
+        const loadNetwork = (provider, dnsAddress) => {
+            web3 = new Web3(provider);
+            DNS = dnsAddress;
+        }
+
+        const connectMetamask = async () => {
+            console.log('Connect metamask');
+            //account = window.ethereum.request({ method: 'eth_accounts' }).then((accounts) => (KEY_PUBLIC = accounts[0])).catch(e => console.log(e));
+
+            const accounts = await window.ethereum.request({
+                method: "wallet_requestPermissions",
+                params: [{
+                    eth_accounts: {}
+                }]
+            }).then(() => ethereum.request({
+                method: 'eth_accounts'
+                //method: 'eth_requestAccounts'
+            }))
+            KEY_PUBLIC = accounts[0];
+            account = accounts[0];
+            CHAIN_ID = window.ethereum.chainId;;
+            loadNetwork(Web3.givenProvider, CHAIN_ID === '0x507' ? '0xee7A60172c138615F4C6ECf6E2A6b24720B4bce0' : '0x7DF890c9D449707c8139e802f1299310e62d6448');
+            console.log(DNS);
+        }
+
+        //0xFda4d8e621a7De536B67226Ab33029D48c26e823
+        //const KEY_PUBLIC = '0x53b5D12874A77A8D3C959b6160be0fb552787c8B';
+        //0x0f3887c1be7bb32e08fa509e81c44962fa92b71da7757532a377901dc1da8bb8
+        //const KEY_PRIVATE = '0xb7c74cfce5c023aab9c76f29064b43818775d25c43cfc86a4f6a9df733d3702c';
+        //https://eth-sepolia.g.alchemy.com/v2/m41vG11L6gyJJ5QkkqcU5UuG_FfCpWVc
+        //https://1rpc.io/glmr
+        //const PROVIDER_URL = 'https://rpc.api.moonbase.moonbeam.network';
+        //DNS 1 SEP 0xf47FcbC691C60190a32e8f64ccD6d64a5eA7621c
+        //DNS 2 SEP 0x7DF890c9D449707c8139e802f1299310e62d6448
+        let DNS = '0xee7A60172c138615F4C6ECf6E2A6b24720B4bce0';
+
+        const PROVIDER_URL_MOON = 'https://rpc.api.moonbase.moonbeam.network';
+        const PROVIDER_URL_SEP = 'https://eth-sepolia.g.alchemy.com/v2/m41vG11L6gyJJ5QkkqcU5UuG_FfCpWVc';
+        const DNS_MOON = '0xee7A60172c138615F4C6ECf6E2A6b24720B4bce0';
+        const DNS_SEP = '0x7DF890c9D449707c8139e802f1299310e62d6448';
+
+        const abiWebsite = [
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "oldOwner",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "newOwner",
+                        "type": "address"
+                    }
+                ],
+                "name": "OwnerSet",
+                "type": "event"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "newOwner",
+                        "type": "address"
+                    }
+                ],
+                "name": "changeOwner",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_html",
+                        "type": "string"
+                    }
+                ],
+                "name": "deploy",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_html",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "inputs": [],
+                "name": "getOwner",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "retrieve",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ]
+
+        const abiDnsFull = [
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_domain",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_html",
+                        "type": "string"
+                    }
+                ],
+                "name": "createSite",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_domain",
+                        "type": "string"
+                    }
+                ],
+                "name": "remove",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_addr",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_domain",
+                        "type": "string"
+                    }
+                ],
+                "name": "set",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "name": "addresses",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_domain",
+                        "type": "string"
+                    }
+                ],
+                "name": "get",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_domain",
+                        "type": "string"
+                    }
+                ],
+                "name": "getSite",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "list",
+                "outputs": [
+                    {
+                        "internalType": "string[]",
+                        "name": "",
+                        "type": "string[]"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ]
+
+        const nav = document.querySelector('#navigate');
+        nav.addEventListener('submit', event => {
+            event.preventDefault();
+            const address = event.target[0].value;
+            window.location.href = './?address=' + address
+        });
+
+        const loadPage = async (address) => {
+            console.log("Navigating to:" + address);
+            let html = '';
+
+            if (address === 'new') {
+                const newWebsiteHTML = `<main id="main-newwebsite" class="container"><hgroup>
+                <h1>New website</h1>
+                <h2>Create your own website on the blockchain.</h2>
+            </hgroup>
+            <form id="newwebsite">
+                <label for="domain">Domain (must end in .eth or .moon)</label>
+                <input type="text" id="domain" required value="${address === 'new' ? '' : address}"/>
+                <label for="html">HTML</label>
+                <textarea id="html" required></textarea>
+                <button aria-busy="false" role="submit" id="create">Create</button>
+            </form></main>`
+                document.getElementById('page').innerHTML = newWebsiteHTML;
+                document.getElementById('page').innerHTML = newWebsiteHTML;
+                //document.getElementById('domain').innerText = address === 'new' ? '' : address;
+
+                const form = document.getElementById("newwebsite");
+                form.addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    const domain = event.target[0].value;
+                    const html = event.target[1].value;
+                    if (domain?.includes('.moon')) {
+                        loadNetwork(new Web3.providers.HttpProvider(PROVIDER_URL_MOON), DNS_MOON);
+                    }
+                    if (domain?.includes('.eth')) {
+                        loadNetwork(new Web3.providers.HttpProvider(PROVIDER_URL_SEP), DNS_SEP);
+                    }
+                    console.log('Deploy\n' + domain + '\n' + html)
+                    createSite(domain, html);
+                });
+                return;
+            }
+
+            if (address.includes('.')) {
+                try {
+                    console.log(DNS);
+                    html = await lookupSite(address);
+                } catch (error) {
+                    console.log('error');
+                    const hex = await lookupDomain(address);
+                    console.log(hex);
+                    if (hex === '0x0000000000000000000000000000000000000000') {
+                        console.log('Domain not found');
+                        const newWebsiteHTML = `<main id="main-newwebsite" class="container"><hgroup>
+                <h1>New website</h1>
+                <h2>Create your own website on the blockchain.</h2>
+            </hgroup>
+            <form id="newwebsite">
+                <label for="Domain">Domain (must end in .eth or .moon)</label>
+                <input type="text" id="Domain" required value="${address === 'new' ? '' : address}"/>
+                <label for="html">HTML</label>
+                <textarea id="html" required></textarea>
+                <button aria-busy="false" role="submit" id="create">Create</button>
+            </form></main>`
+                        //document.getElementById('domain').innerText = '';
+                        //document.getElementById('domain').innerText = address === 'new' ? '' : address;
+
+                        const form = document.getElementById("newwebsite");
+                        form.addEventListener("submit", (event) => {
+                            event.preventDefault();
+                            const domain = event.target[0].value;
+                            const html = event.target[1].value;
+                            console.log('Deploy\n' + domain + '\n' + html)
+                            createSite(domain, html);
+                        });
+                        return;
+                    }
+                }
+            } else {
+                html = await getHTML(address);
+            }
+
+            document.getElementById('content').srcdoc = html;
+
+            //Sanitise
+            document.getElementById('content').onload = (event) => {
+                const links = document.getElementById('content').contentDocument.querySelectorAll('a');
+                for (let c = 0; c < links.length; c++) {
+                    links[c].addEventListener('click', (e) => {
+                        // if(!e.target.href.includes('http://127.0.0.1')) {
+                        //     console.log('Blocked');
+                        //     e.preventDefault();
+                        //     return;
+                        // }
+                        window.location.href = e.target.href;
+                        e.preventDefault();
+                    });
+                }
+            }
+        }
+
+        const lookupDomain = async (domain) => {
+            const res = await call('get', DNS, abiDnsFull, [domain]);
+            return res;
+        }
+
+        const lookupSite = async (domain) => {
+            const res = await call('getSite', DNS, abiDnsFull, [domain]);
+            return res;
+        }
+
+        const createSite = async (domain, html) => {
+            document.getElementById('create').setAttribute("aria-busy", "true");
+            document.getElementById('create').innerText = '...';
+            document.getElementById('create').disabled = true;
+
+            const receipt = await signedCall('createSite', DNS, abiDnsFull, [domain, html]);
+            console.log(receipt);
+            document.getElementById('create').setAttribute("aria-busy", "false");
+            console.log(`Deployed: ${domain}`);
+            const newWebsiteAddress = "./?address=" + domain;
+            //window.location.href = newWebsiteAddress;
+            return true;
+        }
+
+        const list = async () => {
+            const res = await call('list', DNS, abiDnsFull, []);
+            return res;
+        }
+
+        const getHTML = async (address) => {
+            const res = await call('retrieve', address, abiWebsite, []);
+            return res;
+        }
+
+        async function call(method, address, abi, parameters) {
+            const contract = new web3.eth.Contract(abi, address);
+            const tx = await contract.methods[method](...parameters);
+            console.log(method);
+            const res = await tx.call({ from: null });
+            //console.log(res);
+            return res;
+        }
+
+        async function signedCall(method, address, abi, parameters) {
+            const contract = new web3.eth.Contract(abi, address);
+            const tx = await contract.methods[method](...parameters);
+
+            const estimate = await tx.estimateGas();
+            console.log(`Estimate: ${estimate}`);
+            const gasPrice = await web3.eth.getGasPrice();
+            console.log(`Gas price: ${gasPrice}`);
+
+            const receipt = await window.ethereum
+                .request({
+                    method: 'eth_sendTransaction',
+                    // The following sends an EIP-1559 transaction. Legacy transactions are also supported.
+                    params: [
+                        {
+                            from: window.ethereum.selectedAddress, // The user's active address.
+                            to: DNS, // Required except during contract publications.
+                            //gasLimit: web3.utils.toHex(estimate * 2), // Customizable by the user during MetaMask confirmation.
+                            data: tx.encodeABI(),
+                            //maxFeePerGas: web3.utils.toHex(Math.floor(gasPrice * 1.1)) // Customizable by the user during MetaMask confirmation.
+                        },
+                    ],
+                })
+
+            return receipt;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const addr = urlParams.get('address');
+        document.getElementById('url').value = addr;
+        if (addr?.includes('.moon')) {
+            loadNetwork(new Web3.providers.HttpProvider(PROVIDER_URL_MOON), DNS_MOON);
+        }
+        if (addr?.includes('.eth')) {
+            loadNetwork(new Web3.providers.HttpProvider(PROVIDER_URL_SEP), DNS_SEP);
+        }
+
+        if (addr) {
+            loadPage(addr);
+        } else {
+            document.getElementById('content').srcdoc = `
+            <style>
+                html {
+                    background-color: #F3F3F8;
+                }
+            </style>
+            <link rel="stylesheet" href="pico.min.css">
+            <main class="container">
+    <header class="container">
+        <hgroup>
+            <h1>Welcome</h1>
+            <h2><b>See websites</b> hosted on the blockchain, or <b>make your own</b>.</h2>
+        </hgroup>
+        <a role="button" href="?address=welcome.eth">See websites</a>
+        <a role="button" class="secondary outline" href="?address=new">Make a website</a>
+    </header>
+</main>`;
+            document.getElementById('content').onload = (event) => {
+                const links = document.getElementById('content').contentDocument.querySelectorAll('a');
+                for (let c = 0; c < links.length; c++) {
+                    links[c].addEventListener('click', (e) => {
+                        window.location.href = e.target.href;
+                        e.preventDefault();
+                    });
+                }
+            }
+        }
+
+        const bytecode = "0x60806040523480156200001157600080fd5b5060405162000fc138038062000fc18339818101604052810190620000379190620002a1565b33600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16600073ffffffffffffffffffffffffffffffffffffffff167f342827c97908e5e2f71151c08502a66d44b6f758e3ac2f1de95f02eb95f0a73560405160405180910390a380600090816200010691906200053d565b505062000624565b6000604051905090565b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b62000177826200012c565b810181811067ffffffffffffffff821117156200019957620001986200013d565b5b80604052505050565b6000620001ae6200010e565b9050620001bc82826200016c565b919050565b600067ffffffffffffffff821115620001df57620001de6200013d565b5b620001ea826200012c565b9050602081019050919050565b60005b8381101562000217578082015181840152602081019050620001fa565b60008484015250505050565b60006200023a6200023484620001c1565b620001a2565b90508281526020810184848401111562000259576200025862000127565b5b62000266848285620001f7565b509392505050565b600082601f83011262000286576200028562000122565b5b81516200029884826020860162000223565b91505092915050565b600060208284031215620002ba57620002b962000118565b5b600082015167ffffffffffffffff811115620002db57620002da6200011d565b5b620002e9848285016200026e565b91505092915050565b600081519050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b600060028204905060018216806200034557607f821691505b6020821081036200035b576200035a620002fd565b5b50919050565b60008190508160005260206000209050919050565b60006020601f8301049050919050565b600082821b905092915050565b600060088302620003c57fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8262000386565b620003d1868362000386565b95508019841693508086168417925050509392505050565b6000819050919050565b6000819050919050565b60006200041e620004186200041284620003e9565b620003f3565b620003e9565b9050919050565b6000819050919050565b6200043a83620003fd565b62000452620004498262000425565b84845462000393565b825550505050565b600090565b620004696200045a565b620004768184846200042f565b505050565b5b818110156200049e57620004926000826200045f565b6001810190506200047c565b5050565b601f821115620004ed57620004b78162000361565b620004c28462000376565b81016020851015620004d2578190505b620004ea620004e18562000376565b8301826200047b565b50505b505050565b600082821c905092915050565b60006200051260001984600802620004f2565b1980831691505092915050565b60006200052d8383620004ff565b9150826002028217905092915050565b6200054882620002f2565b67ffffffffffffffff8111156200056457620005636200013d565b5b6200057082546200032c565b6200057d828285620004a2565b600060209050601f831160018114620005b55760008415620005a0578287015190505b620005ac85826200051f565b8655506200061c565b601f198416620005c58662000361565b60005b82811015620005ef57848901518255600182019150602085019450602081019050620005c8565b868310156200060f57848901516200060b601f891682620004ff565b8355505b6001600288020188555050505b505050505050565b61098d80620006346000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c80632e64cec114610051578063893d20e81461006f578063a6f9dae11461008d578063c7602316146100a9575b600080fd5b6100596100c5565b6040516100669190610374565b60405180910390f35b610077610157565b60405161008491906103d7565b60405180910390f35b6100a760048036038101906100a29190610432565b610181565b005b6100c360048036038101906100be9190610594565b6102d1565b005b6060600080546100d49061060c565b80601f01602080910402602001604051908101604052809291908181526020018280546101009061060c565b801561014d5780601f106101225761010080835404028352916020019161014d565b820191906000526020600020905b81548152906001019060200180831161013057829003601f168201915b5050505050905090565b6000600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614610211576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610208906106af565b60405180910390fd5b8073ffffffffffffffffffffffffffffffffffffffff16600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff167f342827c97908e5e2f71151c08502a66d44b6f758e3ac2f1de95f02eb95f0a73560405160405180910390a380600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555050565b80600090816102e09190610885565b5050565b600081519050919050565b600082825260208201905092915050565b60005b8381101561031e578082015181840152602081019050610303565b60008484015250505050565b6000601f19601f8301169050919050565b6000610346826102e4565b61035081856102ef565b9350610360818560208601610300565b6103698161032a565b840191505092915050565b6000602082019050818103600083015261038e818461033b565b905092915050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006103c182610396565b9050919050565b6103d1816103b6565b82525050565b60006020820190506103ec60008301846103c8565b92915050565b6000604051905090565b600080fd5b600080fd5b61040f816103b6565b811461041a57600080fd5b50565b60008135905061042c81610406565b92915050565b600060208284031215610448576104476103fc565b5b60006104568482850161041d565b91505092915050565b600080fd5b600080fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6104a18261032a565b810181811067ffffffffffffffff821117156104c0576104bf610469565b5b80604052505050565b60006104d36103f2565b90506104df8282610498565b919050565b600067ffffffffffffffff8211156104ff576104fe610469565b5b6105088261032a565b9050602081019050919050565b82818337600083830152505050565b6000610537610532846104e4565b6104c9565b90508281526020810184848401111561055357610552610464565b5b61055e848285610515565b509392505050565b600082601f83011261057b5761057a61045f565b5b813561058b848260208601610524565b91505092915050565b6000602082840312156105aa576105a96103fc565b5b600082013567ffffffffffffffff8111156105c8576105c7610401565b5b6105d484828501610566565b91505092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b6000600282049050600182168061062457607f821691505b602082108103610637576106366105dd565b5b50919050565b7f43616c6c6572206973206e6f7420746865206f776e6572206f6620746869732060008201527f7765627369746500000000000000000000000000000000000000000000000000602082015250565b60006106996027836102ef565b91506106a48261063d565b604082019050919050565b600060208201905081810360008301526106c88161068c565b9050919050565b60008190508160005260206000209050919050565b60006020601f8301049050919050565b600082821b905092915050565b6000600883026107317fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff826106f4565b61073b86836106f4565b95508019841693508086168417925050509392505050565b6000819050919050565b6000819050919050565b600061078261077d61077884610753565b61075d565b610753565b9050919050565b6000819050919050565b61079c83610767565b6107b06107a882610789565b848454610701565b825550505050565b600090565b6107c56107b8565b6107d0818484610793565b505050565b5b818110156107f4576107e96000826107bd565b6001810190506107d6565b5050565b601f8211156108395761080a816106cf565b610813846106e4565b81016020851015610822578190505b61083661082e856106e4565b8301826107d5565b50505b505050565b600082821c905092915050565b600061085c6000198460080261083e565b1980831691505092915050565b6000610875838361084b565b9150826002028217905092915050565b61088e826102e4565b67ffffffffffffffff8111156108a7576108a6610469565b5b6108b1825461060c565b6108bc8282856107f8565b600060209050601f8311600181146108ef57600084156108dd578287015190505b6108e78582610869565b86555061094f565b601f1984166108fd866106cf565b60005b8281101561092557848901518255600182019150602085019450602081019050610900565b86831015610942578489015161093e601f89168261084b565b8355505b6001600288020188555050505b50505050505056fea26469706673582212206e64db31c38b3a7070ef381d003ddf6cecd1087e0f5cebf2fce8e0d7c466b00f64736f6c63430008120033";
+    </script>
+</body>
+
+</html>
