@@ -304,15 +304,6 @@
             console.log(DNS);
         }
 
-        //0xFda4d8e621a7De536B67226Ab33029D48c26e823
-        //const KEY_PUBLIC = '0x53b5D12874A77A8D3C959b6160be0fb552787c8B';
-        //0x0f3887c1be7bb32e08fa509e81c44962fa92b71da7757532a377901dc1da8bb8
-        //const KEY_PRIVATE = '0xb7c74cfce5c023aab9c76f29064b43818775d25c43cfc86a4f6a9df733d3702c';
-        //https://eth-sepolia.g.alchemy.com/v2/m41vG11L6gyJJ5QkkqcU5UuG_FfCpWVc
-        //https://1rpc.io/glmr
-        //const PROVIDER_URL = 'https://rpc.api.moonbase.moonbeam.network';
-        //DNS 1 SEP 0xf47FcbC691C60190a32e8f64ccD6d64a5eA7621c
-        //DNS 2 SEP 0x7DF890c9D449707c8139e802f1299310e62d6448
         let DNS = '0xee7A60172c138615F4C6ECf6E2A6b24720B4bce0';
 
         const PROVIDER_URL_MOON = 'https://rpc.api.moonbase.moonbeam.network';
@@ -551,7 +542,7 @@
                 <button aria-busy="false" role="submit" id="create">Create</button>
             </form></main>`
                 document.getElementById('page').innerHTML = newWebsiteHTML;
-                document.getElementById('page').innerHTML = newWebsiteHTML;
+                
                 //document.getElementById('domain').innerText = address === 'new' ? '' : address;
 
                 const form = document.getElementById("newwebsite");
@@ -594,7 +585,7 @@
             </form></main>`
                         //document.getElementById('domain').innerText = '';
                         //document.getElementById('domain').innerText = address === 'new' ? '' : address;
-
+                        document.getElementById('page').innerHTML = newWebsiteHTML;
                         const form = document.getElementById("newwebsite");
                         form.addEventListener("submit", (event) => {
                             event.preventDefault();
